@@ -21,7 +21,7 @@ class TagTogParser(object):
 
     def get_tagtog_df(self, keep_soup=False):
 
-        print('get_tagtog_df - START')
+        print('generating tagtog_df...')
 
         soups_list = [{'file_name': i.split('pool/')[1].split('.plain')[0],
                        'soup': BeautifulSoup(self.tagtog_archive.read(i))}
@@ -46,13 +46,9 @@ class TagTogParser(object):
         if not keep_soup:
             self.tagtog_df.drop('soup', axis=1, inplace=True)
 
-        print('get_tagtog_df - END')
-
         return self.tagtog_df
 
     def get_tags_counts(self, enrich_df=False):
-
-        print('get_tags_counts - START')
 
         def get_tags(self, ann):
             return {self.ann_dict[i['classId']]: True for i in ann['entities']}
@@ -60,6 +56,8 @@ class TagTogParser(object):
         if self.tagtog_df is None:
             print('TagTogParser has no tagtog_df. generating it...')
             self.get_tagtog_df()
+
+        print('calculating tags counts...')
 
         if self.tags_counts is None:
             self.tags_counts = pd.DataFrame(self.tagtog_df['ann'].apply(lambda x: get_tags(self, x)).to_list()).fillna(
@@ -72,15 +70,11 @@ class TagTogParser(object):
 
     def plot_tags_count(self):
 
-        print('get_tags_counts - START')
-
         if self.tags_counts is None:
             print('TagTogParser has no tags_counts. generating it...')
             self.get_tags_counts()
 
         self.tags_counts.sum().sort_values(ascending=False).plot(kind='bar', ylabel='n_tags', title='Tags Distribution')
-
-        print('get_tags_counts - END')
 
     def convert_tagging_to_iob(self, row):
 
@@ -98,7 +92,7 @@ class TagTogParser(object):
         text, ann = row['text'], row['ann']
 
         if row.name % 100 == 0 and row.name != 0:
-            print(f'processed {row.name} instances')
+            print(f'{row.name} instances processed')
 
         all_text_tags = []
         text = [token.text for token in nlp(text)]
@@ -117,11 +111,12 @@ class TagTogParser(object):
         return text_copy, ['O' if i not in all_text_tags else i for i in text]
 
     def get_iob_tags_df(self, enrich_df=False):
-        print('get_iob_tags_df - START')
 
         if self.tagtog_df is None:
             print('TagTogParser has no tagtog_df. generating it...')
             self.get_tagtog_df()
+
+        print('converting tags to IOB format...')
 
         self.iob_tags_df = self.tagtog_df.apply(lambda x: self.convert_tagging_to_iob(x), axis=1, result_type='expand') \
             .rename(columns={0: 'text_list', 1: 'tags_list'})
@@ -129,6 +124,6 @@ class TagTogParser(object):
         if enrich_df:
             self.tagtog_df = pd.concat([self.tagtog_df, self.iob_tags_df], axis=1)
 
-        print('get_iob_tags_df - END')
+        print('get_iob_tags_df - Done!')
 
         return self.iob_tags_df
