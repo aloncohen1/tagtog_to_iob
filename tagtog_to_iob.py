@@ -74,7 +74,7 @@ class TagTogParser(object):
         def extract_tags_text(row):
             entities_text_dict = defaultdict(list)
             for tag in row['entities']:
-                entities_text_dict[self.tagtog_df.ann_dict[tag['classId']] + '_text'].append(tag['offsets'][0]['text'])
+                entities_text_dict[self.ann_dict[tag['classId']] + '_text'].append(tag['offsets'][0]['text'])
             return entities_text_dict
 
         tags_text_df = pd.DataFrame(self.tagtog_df['ann'].apply(lambda x: extract_tags_text(x)).to_list())
