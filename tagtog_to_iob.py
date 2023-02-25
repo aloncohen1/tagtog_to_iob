@@ -80,7 +80,7 @@ class TagTogParser(object):
         tags_text_df = pd.DataFrame(self.tagtog_df['ann'].apply(lambda x: extract_tags_text(x)).to_list())
 
         if enrich_df:
-            self.tagtog_df.join(tags_text_df)
+            self.tagtog_df = self.tagtog_df.join(tags_text_df)
 
         return tags_text_df
 
