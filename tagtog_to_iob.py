@@ -1,5 +1,6 @@
 import zipfile
 import json
+from collections import defaultdict
 from bs4 import BeautifulSoup
 import pandas as pd
 import numpy as np
@@ -68,6 +69,21 @@ class TagTogParser(object):
 
         return self.tags_counts.sum()
 
+    def get_tags_text(self, enrich_df=False):
+
+        def extract_tags_text(row):
+            entities_text_dict = defaultdict(list)
+            for tag in row['entities']:
+                entities_text_dict[self.ann_dict[tag['classId']] + '_text'].append(tag['offsets'][0]['text'])
+            return entities_text_dict
+
+        tags_text_df = pd.DataFrame(self.tagtog_df['ann'].apply(lambda x: extract_tags_text(x)).to_list())
+
+        if enrich_df:
+            self.tagtog_df = self.tagtog_df.join(tags_text_df)
+
+        return tags_text_df
+
     def plot_tags_count(self):
 
         if self.tags_counts is None:
@@ -78,7 +94,7 @@ class TagTogParser(object):
 
     def convert_tagging_to_iob(self, row):
 
-        def parse_tag_name(self, ann_entity):
+        def parse_tag_name(ann_entity):
             tag_name = self.ann_dict[ann_entity['classId']]
             parsed_tags = []
             for index, word in enumerate(ann_entity['offsets'][0]['text'].split()):
@@ -98,7 +114,7 @@ class TagTogParser(object):
         text = [token.text for token in nlp(text)]
         text_copy = text.copy()
         for ann_entity in ann['entities']:
-            tags_name = parse_tag_name(self, ann_entity)
+            tags_name = parse_tag_name(ann_entity)
             all_text_tags.extend(tags_name)
             tagged_text = [token.text for token in nlp(ann_entity['offsets'][0]['text'])]
 
