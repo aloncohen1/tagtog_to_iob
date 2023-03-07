@@ -133,7 +133,7 @@ class TagTogParser(object):
 
         return text_copy, ['O' if i not in all_text_tags else i for i in text]
 
-    def get_iob_tags_df(self, enrich_df=False):
+    def get_iob_tags_df(self, enrich_df=False, exclude_tags=None):
 
         if self.tagtog_df is None:
             print('TagTogParser has no tagtog_df. generating it...')
@@ -141,8 +141,8 @@ class TagTogParser(object):
 
         print('converting tags to IOB format...')
 
-        self.iob_tags_df = self.tagtog_df.apply(lambda x: self.convert_tagging_to_iob(x), axis=1, result_type='expand') \
-            .rename(columns={0: 'text_list', 1: 'tags_list'})
+        self.iob_tags_df = self.tagtog_df.apply(lambda x: self.convert_tagging_to_iob(x, exclude_tags), axis=1,
+                                                result_type='expand').rename(columns={0: 'text_list', 1: 'tags_list'})
 
         if enrich_df:
             self.tagtog_df = pd.concat([self.tagtog_df, self.iob_tags_df], axis=1)
