@@ -54,8 +54,8 @@ class TagTogParser(object):
 
     def get_tags_counts(self, enrich_df=False):
 
-        def get_tags(self, ann):
-            return {self.ann_dict[i['classId']]: True for i in ann['entities']}
+        def get_tags(ann):
+            return {self.id2tag[i['classId']]: True for i in ann['entities']}
 
         if self.tagtog_df is None:
             print('TagTogParser has no tagtog_df. generating it...')
@@ -64,8 +64,7 @@ class TagTogParser(object):
         print('calculating tags counts...')
 
         if self.tags_counts is None:
-            self.tags_counts = pd.DataFrame(self.tagtog_df['ann'].apply(lambda x: get_tags(self, x)).to_list()).fillna(
-                False)
+            self.tags_counts = pd.DataFrame(self.tagtog_df['ann'].apply(lambda x: get_tags(x)).to_list()).fillna(False)
 
         if enrich_df:
             self.tagtog_df = self.tagtog_df.join(self.tags_counts)
