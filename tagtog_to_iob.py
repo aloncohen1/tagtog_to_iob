@@ -108,7 +108,7 @@ class TagTogParser(object):
             return parsed_tags
 
         if exclude_tags:
-            exclude_tags = [tag[self.tag2id] for tag in exclude_tags]
+            exclude_tags = [self.tag2id[tag] for tag in exclude_tags]
             print(f'will exclude the following tags: {exclude_tags}')
 
         text, ann = row['text'], row['ann']
