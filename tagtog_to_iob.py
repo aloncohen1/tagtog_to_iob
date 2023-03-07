@@ -136,6 +136,8 @@ class TagTogParser(object):
                 f'Error - the following exclude_tags not in data:  {set(exclude_tags) - set(self.tag2id)}'
             print(f'will exclude the following tags: {exclude_tags}')
             exclude_tags = [self.tag2id[tag] for tag in exclude_tags]
+        else:
+            exclude_tags = []
 
         if self.tagtog_df is None:
             print('TagTogParser has no tagtog_df. generating it...')
