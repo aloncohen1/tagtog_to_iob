@@ -107,10 +107,6 @@ class TagTogParser(object):
 
             return parsed_tags
 
-        if exclude_tags:
-            exclude_tags = [self.tag2id[tag] for tag in exclude_tags]
-            print(f'will exclude the following tags: {exclude_tags}')
-
         text, ann = row['text'], row['ann']
 
         if row.name % 100 == 0 and row.name != 0:
@@ -134,6 +130,12 @@ class TagTogParser(object):
         return text_copy, ['O' if i not in all_text_tags else i for i in text]
 
     def get_iob_tags_df(self, enrich_df=False, exclude_tags=None):
+
+        if exclude_tags:
+            assert all(x in self.tag2id for x in exclude_tags), \
+                f'Error - the following exclude_tags not in data:  {set(exclude_tags) - set(self.tag2id)}'
+            print(f'will exclude the following tags: {exclude_tags}')
+            exclude_tags = [self.tag2id[tag] for tag in exclude_tags]
 
         if self.tagtog_df is None:
             print('TagTogParser has no tagtog_df. generating it...')
