@@ -36,7 +36,7 @@ class TagTogParser(object):
         self.id2tag = json.loads(
             self.tagtog_archive.read(self.tagtog_archive.namelist()[-1]))  # read annotations-legend.json
 
-        self.tag2id = {v: k for k, v in self.id2tag .ann_dict.items()}  # create inverse annotations dict
+        self.tag2id = {v: k for k, v in self.id2tag.items()}  # create inverse annotations dict
 
         self.ann_leged_df = pd.DataFrame(self.id2tag.items(), columns=['tag_code', 'tag_meaning'])
         self.tagtog_df = pd.DataFrame(soups_list).merge(pd.DataFrame(ann_list),
