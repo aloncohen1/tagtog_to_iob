@@ -112,22 +112,26 @@ class TagTogParser(object):
         if row.name % 100 == 0 and row.name != 0:
             print(f'{row.name} instances processed')
 
-        all_text_tags = []
-        text = [token.text for token in nlp(text)]
-        text_copy = text.copy()
-        for ann_entity in ann['entities']:
-            if ann_entity['classId'] not in exclude_tags:
-                tags_name = parse_tag_name(ann_entity)
-                all_text_tags.extend(tags_name)
-                tagged_text = [token.text for token in nlp(ann_entity['offsets'][0]['text'])]
+        try:
+            all_text_tags = []
+            text = [token.text for token in nlp(text)]
+            text_copy = text.copy()
+            for ann_entity in ann['entities']:
+                if ann_entity['classId'] not in exclude_tags:
+                    tags_name = parse_tag_name(ann_entity)
+                    all_text_tags.extend(tags_name)
+                    tagged_text = [token.text for token in nlp(ann_entity['offsets'][0]['text'])]
 
-                tag_index = np.array(list(text[idx: idx + len(tagged_text)] == tagged_text
-                                          for idx in range(len(text) - len(tagged_text) + 1))).argmax()
+                    tag_index = np.array(list(text[idx: idx + len(tagged_text)] == tagged_text
+                                              for idx in range(len(text) - len(tagged_text) + 1))).argmax()
 
-                for index, tag in enumerate(tags_name):
-                    text[tag_index + index] = tag
+                    for index, tag in enumerate(tags_name):
+                        text[tag_index + index] = tag
 
-        return text_copy, ['O' if i not in all_text_tags else i for i in text]
+            return text_copy, ['O' if i not in all_text_tags else i for i in text]
+        except Exception as e:
+            print(f'Error: row index: {row.name},  row text: {row.text}, error message: {e}')
+            raise ValueError('text was not tagged properly!')
 
     def get_iob_tags_df(self, enrich_df=False, exclude_tags=None):
 
